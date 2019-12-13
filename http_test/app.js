@@ -1,5 +1,5 @@
 const http = require('http')
-// const querystring = require('querystring')
+const querystring = require('querystring')
 
 // const server = http.createServer((req,res)=>{
 //   console.log('method:',req.method)
@@ -11,17 +11,38 @@ const http = require('http')
 // })
 
 const server = http.createServer((req,res)=>{
-  if (req.method==='POST') { //注意这里POST要大写
-    //req 数据格式
-    console.log('req content-type:',req.headers['content-type'])//用JSON
-    //接受数据
-    let postData=''
+  const method = req.method
+  const url = req.url
+  const path = url.split('?')[0]
+  const query = querystring.parse(url.split('?')[1])
+
+  //设置返回格式为json,如果返回的格式不是json客户端可能不是很好解析我们返回的结果
+  res.setHeader('Content-type','application/json') 
+
+  //返回的数据
+  const resData = {
+    method,
+    path,
+    url,
+    query
+  }
+
+  if (method==='GET') {
+    res.end(
+      JSON.stringify(resData) //返回的都是字符串，但是有的是html，有的是json格式的
+    )
+  }
+  if (method==='POST') {
+    let postData = ''
     req.on('data',chunk=>{
-      postData+=chunk.toString() //chunk本身是个二进制的格式
+      postData += chunk.toString()
     })
     req.on('end',()=>{
-      console.log('postData:',postData)
-      res.end('hellp world')
+      resData.postData = postData
+      //返回
+      res.end(
+        JSON.stringify(resData)
+      )
     })
   }
 })
