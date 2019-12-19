@@ -70,6 +70,9 @@ getFileName('a.json')
     console.log('cData',cData)
   })
 
+  //async await
+  
+
 
 
 
