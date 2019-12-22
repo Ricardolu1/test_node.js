@@ -21,5 +21,7 @@ con.query(sql,(err,result)=>{
   console.log(result)
 })
 
+
+
 //关闭连接
 con.end()

@@ -15,7 +15,7 @@ function exec(sql) {
         reject(err)
         return 
       }
-      resolve(result)
+      resolve(result) //返回的是一个数组
     })
   })
 }
