@@ -7,7 +7,7 @@ const {
 }  = require('./src/router/user')
 
 //session数据
-const SESSION_DATA = {}
+const SESSION_DATA = {} //全局数据
 
 //用于处理postData
 
@@ -75,7 +75,7 @@ const serverHandle = (req,res)=>{
     userId=`${Date.now()}_${Math.random()}`
     SESSION_DATA[userId] = {}
   }
-  req.session = SESSION_DATA[userId]
+  req.session = SESSION_DATA[userId] // 是一个对象
   
 
 
