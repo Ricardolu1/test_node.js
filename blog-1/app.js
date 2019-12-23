@@ -5,9 +5,11 @@ const {
   handleUserRouter,
   getCookieExpires
 }  = require('./src/router/user')
+const {get,set} = require('./src/db/redis')
+
 
 //session数据
-const SESSION_DATA = {} //全局数据
+// const SESSION_DATA = {} //全局数据
 
 //用于处理postData
 
@@ -64,23 +66,47 @@ const serverHandle = (req,res)=>{
   })
   
   //解析session
+  // let needSetCookie = false
+  // let userId = req.cookie.userid
+  // if (userId) {
+    //   if (!SESSION_DATA[userId]) {
+      //     SESSION_DATA[userId]={} //不存在就给他初始化一个空对象
+      //   }
+  // }else{
+  //   needSetCookie = true
+  //   userId=`${Date.now()}_${Math.random()}`
+  //   SESSION_DATA[userId] = {}
+  // }
+  // req.session = SESSION_DATA[userId] // 是一个对象
+
+  //解析session(使用redis)
   let needSetCookie = false
   let userId = req.cookie.userid
-  if (userId) {
-    if (!SESSION_DATA[userId]) {
-      SESSION_DATA[userId]={} //不存在就给他初始化一个空对象
-    }
-  }else{
-    needSetCookie = true
+  if (!userId) { //处理没有Id的情况
+    needSetCookie=true
     userId=`${Date.now()}_${Math.random()}`
-    SESSION_DATA[userId] = {}
+    //初始化redis中的session值
+    set(userId,{})
   }
-  req.session = SESSION_DATA[userId] // 是一个对象
-  
-
-
-  //处理postData
-  getPostData(req).then(postData=>{
+  //获取session
+  req.sessionId = userId
+  get(req.sessionId).then(sessionData=>{
+    //有sessionid，但是没有session值的情况
+    if (sessionData===null) {
+      //初始化redis中的session值
+      set(req.sessionId,{})
+      //设置session
+      req.session = {}
+    }else{
+      //设置session
+      req.session = sessionData  //由于上面的设置，第一次获取到的值，应该是空
+      //最终我们的目的就是为req.session赋值
+    }
+    console.log('req.session ',req.session)
+    //处理postData
+    return getPostData(req)
+  })
+ .then(postData=>{
     req.body = postData
     //处理blog路由
     // const blogData = handleUserRouter(req,res)
@@ -94,6 +120,7 @@ const serverHandle = (req,res)=>{
     const blogResult = handleBlogRouter(req,res)
     if (blogResult) {
       blogResult.then(blogData=>{
+        //没有id的时候会走的这里面，
         if (needSetCookie) {
           res.setHeader('Set-Cookie',`userid=${userId};path=/;httpOnly;expires=${getCookieExpires()}`)
         }
@@ -135,4 +162,4 @@ const serverHandle = (req,res)=>{
   
 module.exports = serverHandle
   
-//process.env.NODE_ENV, //process是nodejs提供的一个全局变量
+//process.env.NODE_ENV, process是nodejs提供的一个全局变量
