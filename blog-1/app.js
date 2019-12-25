@@ -6,6 +6,7 @@ const {
   getCookieExpires
 }  = require('./src/router/user')
 const {get,set} = require('./src/db/redis')
+const {access} = require('./src/utils/log')
 
 
 //session数据
@@ -41,6 +42,9 @@ const getPostData = (req)=>{
 }
 
 const serverHandle = (req,res)=>{
+  //记录access log
+  access(`${req.method} -- ${req.url} -- ${req.headers['user-agent']} -- ${Date.now()}`)
+
   //设置返回格式json,业界规范，
   res.setHeader('Content-type','application/json; charset=utf-8')
   
