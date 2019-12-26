@@ -12,7 +12,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "redis": "^2.8.0"
+    "redis": "^2.8.0",
+    "xss": "^1.0.6"
   },
   "devDependencies": {
     "cross-env": "^6.0.3",

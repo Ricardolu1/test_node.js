@@ -1,4 +1,8 @@
-const {exec} = require('../db/mysql')
+const {
+  exec,
+  escape
+} = require('../db/mysql')
+const xss = require('xss')
 
 //跟这个1=1类似的是，在我们写url参数的时候
 
@@ -12,7 +16,7 @@ const getList = (author,keyword)=>{
     sql+=`and author='${author}' `
   }
   if (keyword) {
-    sql+=`and title like '%${keyword}%' `
+    sql+=`and title like %'${keyword}'% `
   }
   sql+=`order by createtime desc;`
 
@@ -30,7 +34,10 @@ const getDetail = (id)=>{
 
 const newBlog = (blogData)=>{
   //blogData是一个博客对象，包含title，content author属性
-  const {title,content,author} = blogData 
+  const title = xss(blogData.title)
+  console.log('title is',title)
+  const content = xss(blogData.content)
+  const author = xss(blogData.author)
   const createTime = Date.now()
   const sql = `
     insert into blogs (title,content,createtime,author)
