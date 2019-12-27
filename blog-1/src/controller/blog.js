@@ -9,14 +9,16 @@ const xss = require('xss')
 const getList = (author,keyword)=>{
   //先返回假数据，格式是正确的
   let sql = `select * from blogs where 1=1 `
+  author = escape(author)
   //因为author的值不确定 ,keyword的值也不确定所有要加一个1=1
   //1=1也是一个条件，永远成立不会影响后面的语句，语法结构上需要，因为语法不能乱，这是一个小技巧，让代码更加简洁
   
   if (author) {
-    sql+=`and author='${author}' `
+    sql+=`and author=${author} `
   }
   if (keyword) {
-    sql+=`and title like %'${keyword}'% `
+    sql+=`and title like '%${keyword}%' `
+    console.log('2222')
   }
   sql+=`order by createtime desc;`
 
