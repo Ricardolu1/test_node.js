@@ -16,7 +16,6 @@ function genPassword(password) {
 }
 
 const result = genPassword('123')
-console.log('result',result)
 
 module.exports = {
   genPassword

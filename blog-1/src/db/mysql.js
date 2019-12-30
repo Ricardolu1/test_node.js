@@ -9,12 +9,14 @@ con.connect()
 
 //统一执行sql的函数
 function exec(sql) {
+  console.log('111111111')
   return new Promise((resolve,reject)=>{
     con.query(sql,(err,result)=>{
       if (err) {
         reject(err)
         return 
       }
+      console.log('result',result)
       resolve(result) //返回的是一个数组
     })
   })

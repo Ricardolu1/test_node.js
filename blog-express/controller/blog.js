@@ -12,11 +12,10 @@ const getList = (author,keyword)=>{
   //1=1也是一个条件，永远成立不会影响后面的语句，语法结构上需要，因为语法不能乱，这是一个小技巧，让代码更加简洁
   
   if (author) {
-    sql+=`and author=${author} `
+    sql+=`and author='${author}' `
   }
   if (keyword) {
     sql+=`and title like '%${keyword}%' `
-    console.log('2222')
   }
   sql+=`order by createtime desc;`
 
@@ -71,7 +70,7 @@ const updateBlog = (id,blogData={})=>{
 const delBlog = (id,author)=>{
   //id就是要删除博客的id 
   const sql = `
-    delete from blogs where id=${id} and author='${author}';
+    delete from blogs where id='${id}' and author='${author}';
   `
   return exec(sql).then(deleteData=>{
     // console.log('deleteData is ',deleteData)
