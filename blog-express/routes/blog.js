@@ -1,20 +1,49 @@
 var express = require('express')
 var router = express.Router()
+const { 
+  getList,
+  getDetail,
+  newBlog,
+  updateBlog,
+  delBlog
+} = require('../controller/blog')
+const {
+  SuccessModel,
+  ErrorModel
+} = require('../model/resModel')
 
 router.get('/list', function(req, res, next) {
-  res.json({ //res,json可以直接返回一个json格式的文件，而且还会给你加一个content-type的头
-    errno:0,
-    data:'ok'
+  let author = req.query.author || ''
+  let keyword = req.query.keyword || ''
+  
+  // if (req.query.isadmin) {
+  //   //管理员界面
+  //   const loginCheckResult = loginCheck(req)
+  //   if (loginCheckResult) {
+  //     //未登录
+  //     return loginCheckResult
+  //   }
+  //   //强制查询自己的博客
+  //   author = req.session.username
+  // }
+
+  const result = getList(author,keyword) 
+  return  result.then(listData=>{
+    console.log('listData',listData)
+    res.json(
+      new SuccessModel(listData)
+    ) 
   })
 })
 
 
-router.get('/detail', function(req, res, next) {
-  res.json({
-    errno:0,
-    data:'ok'
-  })
-})
+// router.get('/detail', function(req, res, next) {
+//   res.json({
+//     errno:0,
+//     data:'ok'
+//   })
+// })
+
 
 
 
