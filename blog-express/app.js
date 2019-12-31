@@ -1,6 +1,7 @@
 var createError = require('http-errors')
 var express = require('express')
 var path = require('path')
+const fs = require('fs')
 var cookieParser = require('cookie-parser')
 var logger = require('morgan')
 const session = require('express-session')
@@ -19,9 +20,28 @@ var app = express()
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.use(logger('dev',{
-  stream:process.stdout //这个参数是默认的参数 日志是要通过流来输入输出的
-}))
+// app.use(logger('dev',{
+//   stream:process.stdout //这个参数是默认的参数 日志是要通过流来输入输出的
+// }))
+const ENV = process.env.NODE_ENV
+
+if (ENV !=='production') {
+  //开发环境 / 测试环境
+  app.use(logger('dev',{
+    stream:process.stdout //这个参数是默认的参数 日志是要通过流来输入输出的
+  }))
+  console.log('11')
+}else{
+  //线上环境
+  const logFileName = path.join(__dirname,'logs','access.log')
+  const writeStream = fs.createWriteStream(logFileName,{
+    flags:'a' //就是接后面写，append
+  })
+  app.use(logger('combined',{
+    stream:writeStream
+  }))
+}
+
 
 app.use(express.json()) //获取到post过来的数据，urlencoded也是,把json解析成js对象
 app.use(express.urlencoded({ extended: false }))
