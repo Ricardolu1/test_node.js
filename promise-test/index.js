@@ -57,25 +57,51 @@ function getFileName(fileName) {
   return promise
 }
 
-getFileName('a.json')
-  .then(aData=>{
-    console.log('aData',aData)
-    return getFileName(aData.next)
-  })
-  .then(bData=>{
-    console.log('bData',bData)
-    return getFileName(bData.next)
-  })
-  .then(cData=>{
-    console.log('cData',cData)
-  })
+// getFileName('a.json')
+//   .then(aData=>{
+//     console.log('aData',aData)
+//     return getFileName(aData.next)
+//   })
+//   .then(bData=>{
+//     console.log('bData',bData)
+//     return getFileName(bData.next)
+//   })
+//   .then(cData=>{
+//     console.log('cData',cData)
+//   })
 
-  //async await
-  
+//async await
+async function readFileData() {
+  //同步写法
+  try {
+    const aData =  await getFileName('a.json')
+    console.log('a Data',aData)
+    const bData = await getFileName(aData.next)
+    console.log('b data',bData)
+    const cData = await getFileName(bData.next)
+    console.log('c data',cData)
+  } catch (error) {
+    console.error(error)
+  }
+}
+// readFileData()
 
+async function readAData() {
+  const aData = await getFileName('a.json')
+  return aData
+}
 
+async function test() {
+  const aData = await readAData()
+  console.log('aData',aData)
+}
+test()
 
-
+//async await 要点:
+//1.await 后面可以追加promise对象,获取resolve的值
+//2.await 必须包裹在async函数里面
+//3.async 函数返回的也是一个promise对象
+//4.try-catch截获promise中reject的值
 
 
 
