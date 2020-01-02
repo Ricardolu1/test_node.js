@@ -91,7 +91,7 @@ class LikeExpress {
   }
 
   listen(...args){ //剩余参数
-    const server = http.createServer(this.callback)
+    const server = http.createServer(this.callback())
     server.listen(...args)
   }
 }
