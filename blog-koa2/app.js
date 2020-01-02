@@ -4,11 +4,18 @@ const views = require('koa-views')
 const json = require('koa-json')
 const onerror = require('koa-onerror')
 const bodyparser = require('koa-bodyparser') //post
-const logger = require('koa-logger')
+const logger = require('koa-logger') 
+const session = require('koa-generic-session')
+const redisStore = require('koa-redis/')
+const {REDIS_CONF} = require('./conf/db')
+const path = require('path')
+const fs = require('fs')
+const morgan = require('koa-morgan')
 
 const index = require('./routes/index')
 const users = require('./routes/users')
 const blog = require('./routes/blog') //引用
+const user = require('./routes/user') //引用
 // error handler
 onerror(app)
 
@@ -36,10 +43,44 @@ app.use(async (ctx, next) => {
   console.log(`${ctx.method} ${ctx.url} - ${ms}ms`)
 })
 
+const ENV = process.env.NODE_ENV
+if (ENV !=='production') {
+  //开发环境 / 测试环境
+  app.use(morgan('dev',{
+    stream:process.stdout //这个参数是默认的参数 日志是要通过流来输入输出的
+  }))
+}else{
+  //线上环境
+  const logFileName = path.join(__dirname,'logs','access.log')
+  const writeStream = fs.createWriteStream(logFileName,{
+    flags:'a' //就是接后面写，append
+  })
+  app.use(morgan('combined',{
+    stream:writeStream
+  }))
+}
+
+//session配置
+app.keys = ['WJiol#123132']
+app.use(session({
+  //配置cookie
+  path:'/',
+  httpOnly:true,
+  maxAge:24*60*60*1000,
+  //配置redis
+  store:redisStore({
+    all:`${REDIS_CONF.host}:${REDIS_CONF.port}`
+    // all:'127.0.0.1:6379'//写死本地的redis 
+  })
+}))
+
+
+
 // 注册routes
 app.use(index.routes(), index.allowedMethods())
 app.use(users.routes(), users.allowedMethods())
 app.use(blog.routes(), blog.allowedMethods()) 
+app.use(user.routes(), user.allowedMethods()) 
 
 // error-handling
 app.on('error', (err, ctx) => {
